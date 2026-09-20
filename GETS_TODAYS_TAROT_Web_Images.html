@@ -13,350 +13,307 @@ html, body {
     width: 100%;
     min-width: 0;
     background: #f5f5f5;
-    overflow-x: hidden;
+    font-family:
+        "Yu Gothic",
+        "Meiryo",
+        sans-serif;
 }
 
-#frame {
+* {
+    box-sizing: border-box;
+}
+
+/* iframe */
+#tarotFrame {
     display: block;
     width: 100%;
-    min-width: 0;
-    border: 0;
-    margin: 0;
-    padding: 0;
+    border: none;
+    overflow: hidden;
+}
+
+/* スマホ画面全体 */
+.mobile-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+/* カード表示部分 */
+.card-area {
+    width: 100%;
+    overflow: hidden;
+}
+
+/* 元ページをスマホ用に表示 */
+#tarotFrame {
+    background: #f5f5f5;
+}
+
+/* 小さな画面 */
+@media (max-width: 600px) {
+
+    .mobile-container {
+        padding: 5px;
+    }
+
+}
+
+/* とても小さいスマホ */
+@media (max-width: 380px) {
+
+    .mobile-container {
+        padding: 3px;
+    }
+
 }
 </style>
 </head>
 
 <body>
 
-<iframe
-    id="frame"
-    src="13%E6%9E%9A%E3%82%AB%E3%83%BC%E3%83%89%E8%A1%A8%E7%A4%BA%E7%89%88.html"
-    frameborder="0"
-    scrolling="no">
-</iframe>
+<div class="mobile-container">
+
+    <div class="card-area">
+        <iframe
+            id="tarotFrame"
+            src="13%E6%9E%9A%E3%82%AB%E3%83%BC%E3%83%89%E8%A1%A8%E7%A4%BA%E7%89%88.html"
+            scrolling="no">
+        </iframe>
+    </div>
+
+</div>
+
 
 <script>
 
-const frame = document.getElementById("frame");
+/* =========================================
+   iframe内の13枚カード表示をスマホ用に調整
+========================================= */
 
-frame.onload = function () {
+const frame = document.getElementById("tarotFrame");
 
-    const doc = frame.contentDocument;
+
+/* iframe読み込み後 */
+frame.addEventListener("load", function () {
+
+    const doc = frame.contentDocument || frame.contentWindow.document;
 
     if (!doc) return;
 
 
-    /* =====================================================
-       スマホ表示用CSS
-    ===================================================== */
+    /* =====================================
+       スマホ用CSSをiframe内部へ追加
+    ===================================== */
 
     const style = doc.createElement("style");
 
-    style.innerHTML = `
+    style.textContent = `
 
-    html {
-        width: 100% !important;
-        min-width: 0 !important;
-        overflow-x: hidden !important;
-    }
+        html,
+        body {
+            width: 100% !important;
+            min-width: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow-x: hidden !important;
+        }
 
-    body {
-        width: 100% !important;
-        min-width: 0 !important;
-        max-width: 100% !important;
-        margin: 0 !important;
-        padding: 8px !important;
-        box-sizing: border-box !important;
-        overflow-x: hidden !important;
-    }
+        main {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            padding: 10px !important;
+            margin: 0 !important;
+        }
 
+        .panel {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            padding: 10px !important;
+            margin: 0 !important;
+        }
 
-    /* ================================
-       カードを引く
-    ================================ */
-
-    button,
-    input[type="button"],
-    input[type="submit"] {
-
-        font-size: 28px !important;
-        font-weight: bold !important;
-
-        padding: 18px 34px !important;
-
-        min-height: 70px !important;
-
-        border-radius: 10px !important;
-
-        box-sizing: border-box !important;
-    }
-
-
-    /* ================================
-       13枚カード
-    ================================ */
-
-    #board,
-    .board {
-
-        display: grid !important;
-
-        grid-template-columns:
-            repeat(3, minmax(0, 1fr)) !important;
-
-        width: 100% !important;
-
-        min-width: 0 !important;
-        max-width: 100% !important;
-
-        margin: 0 auto !important;
-        padding: 0 !important;
-
-        gap: 10px !important;
-
-        box-sizing: border-box !important;
-
-        overflow: visible !important;
-    }
-
-
-    #board > *,
-    .board > * {
-
-        display: block !important;
-
-        width: 100% !important;
-
-        min-width: 0 !important;
-        max-width: 100% !important;
-
-        margin: 0 !important;
-        padding: 0 !important;
-
-        box-sizing: border-box !important;
-    }
-
-
-    /* ================================
-       カード画像
-    ================================ */
-
-    #board img,
-    .board img {
-
-        display: block !important;
-
-        width: 100% !important;
-        max-width: 100% !important;
-
-        height: auto !important;
-
-        margin: 0 auto !important;
-
-        box-sizing: border-box !important;
-    }
-
-
-    /* ================================
-       勝・負・分
-    ================================ */
-
-    #board .result,
-    .board .result {
-
-        display: block !important;
-
-        width: 100% !important;
-
-        margin: 6px 0 10px 0 !important;
-
-        padding: 8px 2px !important;
-
-        font-size: 30px !important;
-
-        line-height: 1.25 !important;
-
-        font-weight: 900 !important;
-
-        text-align: center !important;
-
-        white-space: nowrap !important;
-
-        border: 2px solid #555 !important;
-
-        border-radius: 8px !important;
-
-        background: #ffffff !important;
-
-        box-sizing: border-box !important;
-    }
-
-
-    /* ================================
-       判定表示を完全に非表示
-    ================================ */
-
-    #board .judgment,
-    #board .judge,
-    #board .判定,
-    .board .judgment,
-    .board .judge,
-    .board .判定 {
-
-        display: none !important;
-    }
-
-
-    /* ================================
-       小型スマートフォン
-    ================================ */
-
-    @media (max-width: 380px) {
-
+        /*
+         * 13枚カードを3列表示
+         */
         #board,
         .board {
-
+            display: grid !important;
             grid-template-columns:
-                repeat(2, minmax(0, 1fr)) !important;
+                repeat(3, minmax(0, 1fr)) !important;
 
-            gap: 8px !important;
+            width: 100% !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+
+            gap: 12px !important;
+            margin: 0 auto !important;
+        }
+
+        /*
+         * カード枠
+         */
+        .card,
+        .card-item,
+        .card-box,
+        .card-frame {
+            width: 100% !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+        }
+
+        /*
+         * カード画像
+         */
+        .card img,
+        .card-item img,
+        .card-box img,
+        .card-frame img {
+            width: 100% !important;
+            height: auto !important;
+            max-width: 100% !important;
+            display: block !important;
+        }
+
+        /*
+         * カード名
+         */
+        .card-name,
+        .name {
+            font-size: 16px !important;
+            font-weight: bold !important;
+            text-align: center !important;
+        }
+
+        /*
+         * 正位置・逆位置
+         */
+        .orientation {
+            font-size: 15px !important;
+            text-align: center !important;
+        }
+
+        /*
+         * 勝・負・分
+         */
+        .result,
+        .result.win,
+        .result.draw,
+        .result.loss {
+            font-size: 30px !important;
+            line-height: 1.3 !important;
+            font-weight: 900 !important;
+            text-align: center !important;
+            margin-top: 8px !important;
+            margin-bottom: 8px !important;
+        }
+
+        /*
+         * 「カードを引く」ボタン
+         */
+        button {
+            font-size: 28px !important;
+            font-weight: 900 !important;
+            padding: 14px 24px !important;
+            line-height: 1.3 !important;
+        }
+
+        /*
+         * 判定：0
+         * 判定：1
+         * 判定：2
+         */
+        .judgment-hidden {
+            display: none !important;
         }
 
 
-        button,
-        input[type="button"],
-        input[type="submit"] {
+        /*
+         * 画面幅が380px以下なら2列
+         */
+        @media (max-width: 380px) {
 
-            font-size: 26px !important;
+            #board,
+            .board {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr)) !important;
 
-            padding: 16px 28px !important;
+                gap: 10px !important;
+            }
 
-            min-height: 64px !important;
+            .result,
+            .result.win,
+            .result.draw,
+            .result.loss {
+                font-size: 27px !important;
+            }
+
+            button {
+                font-size: 25px !important;
+            }
         }
-
-
-        #board .result,
-        .board .result {
-
-            font-size: 27px !important;
-
-            padding: 7px 2px !important;
-        }
-    }
 
     `;
 
     doc.head.appendChild(style);
 
 
-    /* =====================================================
-       判定：0 / 判定：1 / 判定：2 を削除
-    ===================================================== */
+    /* =========================================
+       「判定：0」「判定：1」「判定：2」を削除
+    ========================================= */
 
     function cleanJudgment() {
 
-        const elements =
-            doc.querySelectorAll(
-                "#board *, .board *"
-            );
-
+        /* 要素そのものを確認 */
+        const elements = doc.querySelectorAll(
+            "#board *, .board *, body *"
+        );
 
         elements.forEach(function(el) {
 
-            /* 勝・負・分そのものは触らない */
-
             const text =
-                el.textContent.trim();
-
-
-            /*
-             * 要素全体が
-             *
-             * 判定：0
-             * 判定：1
-             * 判定：2
-             *
-             * の場合
-             */
+                (el.textContent || "").trim();
 
             if (
-                /^判定\s*[：:]\s*[012]$/.test(text)
+                text === "判定：0" ||
+                text === "判定：1" ||
+                text === "判定：2" ||
+                text === "判定:0" ||
+                text === "判定:1" ||
+                text === "判定:2"
             ) {
-
-                el.style.display =
-                    "none";
-
-                return;
-            }
-
-
-            /*
-             * 「判定」だけの場合
-             */
-
-            if (
-                text === "判定" ||
-                text === "判定：" ||
-                text === "判定:"
-            ) {
-
-                el.style.display =
-                    "none";
-
-                return;
+                el.classList.add("judgment-hidden");
             }
 
         });
 
 
-        /* =================================================
-           テキストノードとして存在する
-           「判定：0」等も処理
-        ================================================= */
+        /* =====================================
+           テキストノードの中に
+           「判定：0」などが入っている場合
+        ===================================== */
 
-        const walker =
-            doc.createTreeWalker(
-                doc.body,
-                NodeFilter.SHOW_TEXT
-            );
+        const walker = doc.createTreeWalker(
+            doc.body,
+            NodeFilter.SHOW_TEXT
+        );
 
         const nodes = [];
 
         let node;
 
-        while (
-            node = walker.nextNode()
-        ) {
-
+        while (node = walker.nextNode()) {
             nodes.push(node);
-
         }
 
 
         nodes.forEach(function(textNode) {
 
-            let text =
-                textNode.nodeValue || "";
+            let text = textNode.nodeValue;
 
-
-            /*
-             * 勝（1）
-             * 負（2）
-             * 分（0）
-             *
-             * は絶対に変更しない
-             */
-
-            if (
-                text.includes("勝（1）") ||
-                text.includes("負（2）") ||
-                text.includes("分（0）")
-            ) {
-
-                return;
-
-            }
+            if (!text) return;
 
 
             /*
@@ -364,12 +321,10 @@ frame.onload = function () {
              * 判定：1
              * 判定：2
              */
-
-            text =
-                text.replace(
-                    /判定\s*[：:]\s*[012]/g,
-                    ""
-                );
+            text = text.replace(
+                /判定\s*[：:]\s*[012]/g,
+                ""
+            );
 
 
             /*
@@ -377,67 +332,49 @@ frame.onload = function () {
              * 判定 1
              * 判定 2
              */
-
-            text =
-                text.replace(
-                    /判定\s+[012]/g,
-                    ""
-                );
+            text = text.replace(
+                /判定\s+[012]/g,
+                ""
+            );
 
 
-            /*
-             * 単独の判定
-             */
-
-            text =
-                text.replace(
-                    /判定\s*[：:]?/g,
-                    ""
-                );
-
-
-            textNode.nodeValue =
-                text;
+            textNode.nodeValue = text;
 
         });
 
     }
 
 
-    /* =====================================================
-       最初に実行
-    ===================================================== */
-
+    /* 最初に実行 */
     cleanJudgment();
 
 
-    /* =====================================================
-       元ページが表示を作り直した場合にも実行
-    ===================================================== */
+    /* =========================================
+       「カードを引く」を押したあとにも
+       判定表示が復活しないよう監視
+    ========================================= */
 
-    const observer =
-        new MutationObserver(function() {
+    const observer = new MutationObserver(function() {
 
-            cleanJudgment();
+        cleanJudgment();
 
-            resizeFrame();
+        resizeFrame();
 
-        });
-
-
-    observer.observe(
-        doc.body,
-        {
-            childList: true,
-            subtree: true,
-            characterData: true
-        }
-    );
+    });
 
 
-    /* =====================================================
-       iframeの高さ
-    ===================================================== */
+    observer.observe(doc.body, {
+
+        childList: true,
+        subtree: true,
+        characterData: true
+
+    });
+
+
+    /* =========================================
+       iframeの高さを自動調整
+    ========================================= */
 
     function resizeFrame() {
 
@@ -450,45 +387,44 @@ frame.onload = function () {
                 );
 
             frame.style.height =
-                height + "px";
+                (height + 30) + "px";
 
         } catch (e) {
-
-            frame.style.height =
-                "3000px";
 
         }
 
     }
 
 
-    setTimeout(
-        resizeFrame,
-        300
-    );
-
-    setTimeout(
-        resizeFrame,
-        1000
-    );
-
-    setTimeout(
-        resizeFrame,
-        2000
-    );
-
-    setTimeout(
-        resizeFrame,
-        4000
-    );
+    /* 初回 */
+    resizeFrame();
 
 
-    window.addEventListener(
-        "resize",
-        resizeFrame
-    );
+    /* 少し待って再調整 */
+    setTimeout(function() {
 
-};
+        cleanJudgment();
+        resizeFrame();
+
+    }, 500);
+
+
+    setTimeout(function() {
+
+        cleanJudgment();
+        resizeFrame();
+
+    }, 1500);
+
+
+    setTimeout(function() {
+
+        cleanJudgment();
+        resizeFrame();
+
+    }, 3000);
+
+});
 
 </script>
 
