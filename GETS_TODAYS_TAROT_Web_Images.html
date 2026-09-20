@@ -65,26 +65,22 @@ frame.onload = function () {
         width: 100% !important;
         min-width: 0 !important;
         max-width: 100% !important;
-
         margin: 0 !important;
         padding: 8px !important;
-
         box-sizing: border-box !important;
-
         overflow-x: hidden !important;
     }
 
 
-    /* =====================================================
-       カードを引くボタン
-    ===================================================== */
+    /* ================================
+       カードを引く
+    ================================ */
 
     button,
     input[type="button"],
     input[type="submit"] {
 
         font-size: 28px !important;
-
         font-weight: bold !important;
 
         padding: 18px 34px !important;
@@ -97,9 +93,9 @@ frame.onload = function () {
     }
 
 
-    /* =====================================================
+    /* ================================
        13枚カード
-    ===================================================== */
+    ================================ */
 
     #board,
     .board {
@@ -112,11 +108,9 @@ frame.onload = function () {
         width: 100% !important;
 
         min-width: 0 !important;
-
         max-width: 100% !important;
 
         margin: 0 auto !important;
-
         padding: 0 !important;
 
         gap: 10px !important;
@@ -135,20 +129,18 @@ frame.onload = function () {
         width: 100% !important;
 
         min-width: 0 !important;
-
         max-width: 100% !important;
 
         margin: 0 !important;
-
         padding: 0 !important;
 
         box-sizing: border-box !important;
     }
 
 
-    /* =====================================================
+    /* ================================
        カード画像
-    ===================================================== */
+    ================================ */
 
     #board img,
     .board img {
@@ -156,7 +148,6 @@ frame.onload = function () {
         display: block !important;
 
         width: 100% !important;
-
         max-width: 100% !important;
 
         height: auto !important;
@@ -167,9 +158,9 @@ frame.onload = function () {
     }
 
 
-    /* =====================================================
+    /* ================================
        勝・負・分
-    ===================================================== */
+    ================================ */
 
     #board .result,
     .board .result {
@@ -202,9 +193,24 @@ frame.onload = function () {
     }
 
 
-    /* =====================================================
+    /* ================================
+       判定表示を完全に非表示
+    ================================ */
+
+    #board .judgment,
+    #board .judge,
+    #board .判定,
+    .board .judgment,
+    .board .judge,
+    .board .判定 {
+
+        display: none !important;
+    }
+
+
+    /* ================================
        小型スマートフォン
-    ===================================================== */
+    ================================ */
 
     @media (max-width: 380px) {
 
@@ -217,6 +223,7 @@ frame.onload = function () {
             gap: 8px !important;
         }
 
+
         button,
         input[type="button"],
         input[type="submit"] {
@@ -227,6 +234,7 @@ frame.onload = function () {
 
             min-height: 64px !important;
         }
+
 
         #board .result,
         .board .result {
@@ -243,12 +251,69 @@ frame.onload = function () {
 
 
     /* =====================================================
-       「判定」と判定数字を削除
-       
-       ※「勝（1）」「負（2）」「分（0）」は削除しない
+       判定：0 / 判定：1 / 判定：2 を削除
     ===================================================== */
 
-    function removeJudgment() {
+    function cleanJudgment() {
+
+        const elements =
+            doc.querySelectorAll(
+                "#board *, .board *"
+            );
+
+
+        elements.forEach(function(el) {
+
+            /* 勝・負・分そのものは触らない */
+
+            const text =
+                el.textContent.trim();
+
+
+            /*
+             * 要素全体が
+             *
+             * 判定：0
+             * 判定：1
+             * 判定：2
+             *
+             * の場合
+             */
+
+            if (
+                /^判定\s*[：:]\s*[012]$/.test(text)
+            ) {
+
+                el.style.display =
+                    "none";
+
+                return;
+            }
+
+
+            /*
+             * 「判定」だけの場合
+             */
+
+            if (
+                text === "判定" ||
+                text === "判定：" ||
+                text === "判定:"
+            ) {
+
+                el.style.display =
+                    "none";
+
+                return;
+            }
+
+        });
+
+
+        /* =================================================
+           テキストノードとして存在する
+           「判定：0」等も処理
+        ================================================= */
 
         const walker =
             doc.createTreeWalker(
@@ -260,21 +325,27 @@ frame.onload = function () {
 
         let node;
 
-        while (node = walker.nextNode()) {
+        while (
+            node = walker.nextNode()
+        ) {
+
             nodes.push(node);
+
         }
 
 
         nodes.forEach(function(textNode) {
 
-            let text = textNode.nodeValue;
-
-            if (!text) return;
+            let text =
+                textNode.nodeValue || "";
 
 
             /*
-             * 「勝（1）」「負（2）」「分（0）」は
-             * 絶対に変更しない
+             * 勝（1）
+             * 負（2）
+             * 分（0）
+             *
+             * は絶対に変更しない
              */
 
             if (
@@ -282,67 +353,51 @@ frame.onload = function () {
                 text.includes("負（2）") ||
                 text.includes("分（0）")
             ) {
+
                 return;
+
             }
 
 
             /*
-             * 判定＋数字
-             *
-             * 例
-             * 判定
-             * 判定：
-             * 判定:
-             * 判定 1
+             * 判定：0
              * 判定：1
-             * 判定:1
-             * 判定 1
+             * 判定：2
+             */
+
+            text =
+                text.replace(
+                    /判定\s*[：:]\s*[012]/g,
+                    ""
+                );
+
+
+            /*
              * 判定 0
+             * 判定 1
              * 判定 2
              */
 
-            text = text.replace(
-                /判定\s*[：:]?\s*[012]?/g,
-                ""
-            );
+            text =
+                text.replace(
+                    /判定\s+[012]/g,
+                    ""
+                );
 
 
             /*
-             * 「判定」が単独の場合
+             * 単独の判定
              */
 
-            text = text.replace(
-                /判定/g,
-                ""
-            );
+            text =
+                text.replace(
+                    /判定\s*[：:]?/g,
+                    ""
+                );
 
 
-            textNode.nodeValue = text;
-
-        });
-
-
-        /* =================================================
-           「判定」だけが入っている空の要素も削除
-        ================================================= */
-
-        const all =
-            doc.body.querySelectorAll("*");
-
-        all.forEach(function(el) {
-
-            const text =
-                el.textContent.trim();
-
-            if (
-                text === "判定" ||
-                text === "判定：" ||
-                text === "判定:"
-            ) {
-
-                el.remove();
-
-            }
+            textNode.nodeValue =
+                text;
 
         });
 
@@ -350,15 +405,34 @@ frame.onload = function () {
 
 
     /* =====================================================
-       実行
+       最初に実行
     ===================================================== */
 
-    removeJudgment();
+    cleanJudgment();
 
-    setTimeout(removeJudgment, 200);
-    setTimeout(removeJudgment, 500);
-    setTimeout(removeJudgment, 1000);
-    setTimeout(removeJudgment, 2000);
+
+    /* =====================================================
+       元ページが表示を作り直した場合にも実行
+    ===================================================== */
+
+    const observer =
+        new MutationObserver(function() {
+
+            cleanJudgment();
+
+            resizeFrame();
+
+        });
+
+
+    observer.observe(
+        doc.body,
+        {
+            childList: true,
+            subtree: true,
+            characterData: true
+        }
+    );
 
 
     /* =====================================================
@@ -382,14 +456,32 @@ frame.onload = function () {
 
             frame.style.height =
                 "3000px";
+
         }
+
     }
 
 
-    setTimeout(resizeFrame, 300);
-    setTimeout(resizeFrame, 1000);
-    setTimeout(resizeFrame, 2000);
-    setTimeout(resizeFrame, 4000);
+    setTimeout(
+        resizeFrame,
+        300
+    );
+
+    setTimeout(
+        resizeFrame,
+        1000
+    );
+
+    setTimeout(
+        resizeFrame,
+        2000
+    );
+
+    setTimeout(
+        resizeFrame,
+        4000
+    );
+
 
     window.addEventListener(
         "resize",
