@@ -47,9 +47,9 @@ frame.onload = function () {
     if (!doc) return;
 
 
-    /* =========================================
-       スタイル設定
-       ========================================= */
+    /* =====================================================
+       スマホ表示用CSS
+    ===================================================== */
 
     const style = doc.createElement("style");
 
@@ -75,9 +75,9 @@ frame.onload = function () {
     }
 
 
-    /* =========================================
+    /* =====================================================
        カードを引くボタン
-       ========================================= */
+    ===================================================== */
 
     button,
     input[type="button"],
@@ -97,9 +97,9 @@ frame.onload = function () {
     }
 
 
-    /* =========================================
+    /* =====================================================
        13枚カード
-       ========================================= */
+    ===================================================== */
 
     #board,
     .board {
@@ -146,9 +146,9 @@ frame.onload = function () {
     }
 
 
-    /* =========================================
+    /* =====================================================
        カード画像
-       ========================================= */
+    ===================================================== */
 
     #board img,
     .board img {
@@ -167,61 +167,9 @@ frame.onload = function () {
     }
 
 
-    /* =========================================
-       カード名
-       ========================================= */
-
-    #board .name,
-    #board .card-name,
-    .board .name,
-    .board .card-name {
-
-        display: block !important;
-
-        width: 100% !important;
-
-        margin-top: 4px !important;
-
-        font-size: 12px !important;
-
-        line-height: 1.3 !important;
-
-        font-weight: bold !important;
-
-        text-align: center !important;
-
-        word-break: break-word !important;
-
-        box-sizing: border-box !important;
-    }
-
-
-    /* =========================================
-       正位置・逆位置
-       ========================================= */
-
-    #board .orientation,
-    .board .orientation {
-
-        display: block !important;
-
-        width: 100% !important;
-
-        margin-top: 2px !important;
-
-        font-size: 11px !important;
-
-        line-height: 1.3 !important;
-
-        text-align: center !important;
-
-        box-sizing: border-box !important;
-    }
-
-
-    /* =========================================
-       勝（1）・負（2）・分（0）
-       ========================================= */
+    /* =====================================================
+       勝・負・分
+    ===================================================== */
 
     #board .result,
     .board .result {
@@ -254,22 +202,9 @@ frame.onload = function () {
     }
 
 
-    /* =========================================
-       「判定」を含む要素を非表示
-       ========================================= */
-
-    .judgment,
-    .判定,
-    [class*="judgment"],
-    [id*="judgment"] {
-
-        display: none !important;
-    }
-
-
-    /* =========================================
-       小さいスマートフォン
-       ========================================= */
+    /* =====================================================
+       小型スマートフォン
+    ===================================================== */
 
     @media (max-width: 380px) {
 
@@ -307,26 +242,97 @@ frame.onload = function () {
     doc.head.appendChild(style);
 
 
-    /* =========================================
-       「判定」という文字を含む要素を
-       親要素ごと確認して削除
-       ========================================= */
+    /* =====================================================
+       「判定」と判定数字を削除
+       
+       ※「勝（1）」「負（2）」「分（0）」は削除しない
+    ===================================================== */
 
-    function removeJudgmentText() {
+    function removeJudgment() {
 
-        const elements = doc.querySelectorAll("body *");
+        const walker =
+            doc.createTreeWalker(
+                doc.body,
+                NodeFilter.SHOW_TEXT
+            );
 
-        elements.forEach(function(el) {
+        const nodes = [];
 
-            /* カード結果そのものは触らない */
+        let node;
+
+        while (node = walker.nextNode()) {
+            nodes.push(node);
+        }
+
+
+        nodes.forEach(function(textNode) {
+
+            let text = textNode.nodeValue;
+
+            if (!text) return;
+
+
+            /*
+             * 「勝（1）」「負（2）」「分（0）」は
+             * 絶対に変更しない
+             */
+
             if (
-                el.classList.contains("result") ||
-                el.closest(".result")
+                text.includes("勝（1）") ||
+                text.includes("負（2）") ||
+                text.includes("分（0）")
             ) {
                 return;
             }
 
-            const text = el.textContent.trim();
+
+            /*
+             * 判定＋数字
+             *
+             * 例
+             * 判定
+             * 判定：
+             * 判定:
+             * 判定 1
+             * 判定：1
+             * 判定:1
+             * 判定 1
+             * 判定 0
+             * 判定 2
+             */
+
+            text = text.replace(
+                /判定\s*[：:]?\s*[012]?/g,
+                ""
+            );
+
+
+            /*
+             * 「判定」が単独の場合
+             */
+
+            text = text.replace(
+                /判定/g,
+                ""
+            );
+
+
+            textNode.nodeValue = text;
+
+        });
+
+
+        /* =================================================
+           「判定」だけが入っている空の要素も削除
+        ================================================= */
+
+        const all =
+            doc.body.querySelectorAll("*");
+
+        all.forEach(function(el) {
+
+            const text =
+                el.textContent.trim();
 
             if (
                 text === "判定" ||
@@ -343,19 +349,21 @@ frame.onload = function () {
     }
 
 
-    /* 最初に実行 */
-    removeJudgmentText();
+    /* =====================================================
+       実行
+    ===================================================== */
+
+    removeJudgment();
+
+    setTimeout(removeJudgment, 200);
+    setTimeout(removeJudgment, 500);
+    setTimeout(removeJudgment, 1000);
+    setTimeout(removeJudgment, 2000);
 
 
-    /* 少し時間を置いて再確認 */
-    setTimeout(removeJudgmentText, 300);
-    setTimeout(removeJudgmentText, 1000);
-    setTimeout(removeJudgmentText, 2000);
-
-
-    /* =========================================
+    /* =====================================================
        iframeの高さ
-       ========================================= */
+    ===================================================== */
 
     function resizeFrame() {
 
@@ -367,14 +375,14 @@ frame.onload = function () {
                     doc.documentElement.scrollHeight
                 );
 
-            frame.style.height = height + "px";
+            frame.style.height =
+                height + "px";
 
-        } catch(e) {
+        } catch (e) {
 
-            frame.style.height = "3000px";
-
+            frame.style.height =
+                "3000px";
         }
-
     }
 
 
@@ -383,7 +391,10 @@ frame.onload = function () {
     setTimeout(resizeFrame, 2000);
     setTimeout(resizeFrame, 4000);
 
-    window.addEventListener("resize", resizeFrame);
+    window.addEventListener(
+        "resize",
+        resizeFrame
+    );
 
 };
 
